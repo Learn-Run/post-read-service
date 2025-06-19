@@ -73,6 +73,26 @@ public class PostReadServiceImpl implements PostReadService {
     }
 
     @Override
+    public PostReadModelResDto getPostTestRead(String postUuid, String memberUuid) {
+        PostReadModel postReadModel = postReadRepository.findByPostUuid(postUuid)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.POST_NOT_FOUND));
+
+        // memberUuid가 있는 경우에만 Kafka 이벤트 전송
+        if (memberUuid != null && !memberUuid.isBlank()) {
+            String redisKey = "view:member:" + memberUuid + ":post:" + postUuid;
+            log.info("Redis Key : {}", redisKey);
+
+            // 중복 조회 방지 키를 Redis에 저장 (TTL 10분)
+            redisTemplate.opsForValue().set(redisKey, "1", Duration.ofMinutes(10));
+            log.info("Redis에 조회 기록 저장: {}", redisKey);
+
+            postReadModel.update();
+            postReadRepository.save(postReadModel);
+        }
+        return PostReadModelResDto.from(postReadModel);
+    }
+
+    @Override
     public PostListPageResponseDto getPostBySort(
             Long mainCategoryId,
             Long subCategoryId,

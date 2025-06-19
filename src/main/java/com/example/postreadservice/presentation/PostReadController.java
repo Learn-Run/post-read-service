@@ -54,6 +54,14 @@ public class PostReadController {
         return new BaseResponseEntity<>(postReadService.getPostRead(postUuid, memberUuid));
     }
 
+    @GetMapping("/test/{postUuid}")
+    public BaseResponseEntity<PostReadModelResDto> getPostTestRead(
+            @PathVariable String postUuid,
+            @RequestHeader(value = "X-Member-UUID", required = false) String memberUuid
+    ) {
+        return new BaseResponseEntity<>(postReadService.getPostTestRead(postUuid, memberUuid));
+    }
+
 
     @Operation(
             summary = "게시글 목록 조회",

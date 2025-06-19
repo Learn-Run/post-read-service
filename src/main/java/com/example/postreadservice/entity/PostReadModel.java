@@ -63,4 +63,8 @@ public class PostReadModel {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+
+    public void update() {
+        viewCount += 1;
+    }
 }
